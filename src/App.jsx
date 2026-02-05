@@ -59,16 +59,16 @@ function App() {
             {/* Header / Nav */}
             <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-blue-600 p-2 rounded-lg shadow-sm shadow-blue-200">
-                                <Clock className="w-6 h-6 text-white" strokeWidth={2.5} />
-                            </div>
-                            <h1 className="text-xl font-bold text-slate-800 tracking-tight">
-                                Circa - Mesai Takip
-                            </h1>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-2 rounded-lg shadow-sm shadow-blue-200">
+                            <Clock className="w-6 h-6 text-white" strokeWidth={2.5} />
                         </div>
+                        <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+                            Circa - Mesai Takip
+                        </h1>
+                    </div>
 
+                    <div className="flex items-center gap-6">
                         <nav className="hidden md:flex items-center gap-1">
                             <button
                                 onClick={() => setActiveTab('dashboard')}
@@ -89,20 +89,20 @@ function App() {
                                 Raporlar
                             </button>
                         </nav>
-                    </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
-                        <div className="text-sm font-bold text-slate-700 hidden sm:block">
-                            {user?.email}
+                        <div className="flex items-center gap-4">
+                            <div className="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
+                            <div className="text-sm font-bold text-slate-700 hidden sm:block">
+                                {user?.email}
+                            </div>
+                            <a
+                                href="https://wildtype.app"
+                                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                                title="Apex'e Dön"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </a>
                         </div>
-                        <a
-                            href="https://wildtype.app"
-                            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
-                            title="Apex'e Dön"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </a>
                     </div>
                 </div>
             </header>
