@@ -40,8 +40,8 @@ export default function RecentShifts({ shifts = [] }) {
 
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                    {shift.userName && (
-                                        <div className="text-xs font-bold text-blue-600 mb-0.5">{shift.userName}</div>
+                                    {shift.name && (
+                                        <div className="text-xs font-bold text-blue-600 mb-0.5">{shift.name}</div>
                                     )}
                                     <h3 className="font-bold text-slate-800 truncate">{shift.description || 'Mesai'}</h3>
                                     <div className="flex items-center gap-1.5 mt-1 text-slate-500 text-sm font-medium">
