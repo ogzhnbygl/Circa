@@ -1,8 +1,4 @@
 {
-    "name": "circa",
-    "alias": [
-        "circa.wildtype.app"
-    ],
     "cleanUrls": true,
     "framework": "vite"
 }
