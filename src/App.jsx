@@ -77,7 +77,16 @@ function App() {
                                     : 'text-slate-500 hover:text-slate-900'
                                     }`}
                             >
-                                Dashboard
+                                Mesai Takip
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('permissions')}
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'permissions'
+                                    ? 'text-blue-600 bg-blue-50'
+                                    : 'text-slate-500 hover:text-slate-900'
+                                    }`}
+                            >
+                                İzin Takip
                             </button>
                             <button
                                 onClick={() => setActiveTab('reports')}
@@ -121,6 +130,16 @@ function App() {
                         <div className="lg:col-span-2">
                             <RecentShifts shifts={shifts} />
                         </div>
+                    </div>
+                )}
+
+                {activeTab === 'permissions' && (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-slate-200 shadow-sm text-center">
+                        <div className="bg-slate-100 p-4 rounded-full mb-4">
+                            <Clock className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-slate-900">İzin Takip Modülü</h3>
+                        <p className="text-slate-500 mt-1">Bu özellik yapım aşamasındadır.</p>
                     </div>
                 )}
 

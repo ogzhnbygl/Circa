@@ -14,8 +14,11 @@ export default async function handler(req, res) {
     // GET: List last 5 shifts (Son Hareketler)
     if (req.method === 'GET') {
         try {
+            // Admin sees all shifts, others see only their own
+            const query = user.role === 'admin' ? {} : { email: user.email };
+
             const shifts = await collection
-                .find({ email: user.email }) // Filter by user
+                .find(query)
                 .sort({ date: -1, _id: -1 }) // Sort by date desc
                 .limit(5)
                 .toArray();
