@@ -42,7 +42,7 @@ export default function AddShiftForm({ onSubmit }) {
                 {/* SHIFT TYPE */}
                 <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">MESAI TIPI</label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, shiftType: 'weekday' })}
@@ -61,7 +61,17 @@ export default function AddShiftForm({ onSubmit }) {
                                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                                 }`}
                         >
-                            Hafta Sonu / Tatil
+                            Hafta Sonu
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, shiftType: 'holiday' })}
+                            className={`h-10 rounded-lg text-sm font-semibold transition-all ${formData.shiftType === 'holiday'
+                                ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                                }`}
+                        >
+                            Resmi Tatil
                         </button>
                     </div>
                 </div>

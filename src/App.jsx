@@ -29,10 +29,10 @@ function App() {
         }
     }, [user, activeTab]);
 
-    const fetchTimeOffs = async () => {
+    const fetchTimeOffs = async (limit = 10) => {
         try {
             setLoadingTimeOffs(true);
-            const res = await fetch('/api/time-offs');
+            const res = await fetch(`/api/time-offs?limit=${limit}`);
             if (res.ok) {
                 const data = await res.json();
                 setTimeOffs(data);
@@ -65,10 +65,10 @@ function App() {
         }
     };
 
-    const fetchShifts = async () => {
+    const fetchShifts = async (limit = 5) => {
         try {
             setLoadingShifts(true);
-            const res = await fetch('/api/shifts');
+            const res = await fetch(`/api/shifts?limit=${limit}`);
             if (res.ok) {
                 const data = await res.json();
                 setShifts(data);
@@ -175,7 +175,7 @@ function App() {
 
                         {/* Right Column: List */}
                         <div className="lg:col-span-2">
-                            <RecentShifts shifts={shifts} />
+                            <RecentShifts shifts={shifts} onViewAll={() => fetchShifts(50)} />
                         </div>
                     </div>
                 )}
@@ -189,7 +189,7 @@ function App() {
 
                         {/* Right Column: List */}
                         <div className="lg:col-span-2">
-                            <RecentLeaves leaves={timeOffs} />
+                            <RecentLeaves leaves={timeOffs} onViewAll={() => fetchTimeOffs(50)} />
                         </div>
                     </div>
                 )}

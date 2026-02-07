@@ -16,11 +16,12 @@ export default async function handler(req, res) {
         try {
             // Admin sees all, user sees own
             const query = user.role === 'admin' ? {} : { email: user.email };
+            const limit = parseInt(req.query.limit) || 10;
 
             const timeOffs = await collection
                 .find(query)
                 .sort({ createdAt: -1 })
-                .limit(10)
+                .limit(limit)
                 .toArray();
 
             return res.status(200).json(timeOffs);

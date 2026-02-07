@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 
-export default function RecentShifts({ shifts = [] }) {
+export default function RecentShifts({ shifts = [], onViewAll }) {
 
     // Format date helper: "05 OCT" styling
     const formatDate = (dateString) => {
@@ -16,7 +16,7 @@ export default function RecentShifts({ shifts = [] }) {
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 h-full">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-slate-800">Son Hareketler</h2>
-                <button className="text-blue-600 text-sm font-semibold hover:text-blue-700">Tümünü Gör</button>
+                <button onClick={onViewAll} className="text-blue-600 text-sm font-semibold hover:text-blue-700">Tümünü Gör</button>
             </div>
 
             <div className="space-y-4">
@@ -28,12 +28,27 @@ export default function RecentShifts({ shifts = [] }) {
                     shifts.map((shift, index) => {
                         const { day, month } = formatDate(shift.date);
                         const isWeekend = shift.shiftType === 'weekend';
+                        const isHoliday = shift.shiftType === 'holiday';
+
+                        let dateBoxClass = 'bg-blue-50 text-blue-600';
+                        if (isWeekend) dateBoxClass = 'bg-orange-50 text-orange-600';
+                        if (isHoliday) dateBoxClass = 'bg-rose-50 text-rose-600';
+
+                        let tagClass = 'bg-blue-100 text-blue-700';
+                        let tagText = 'Hafta İçi';
+
+                        if (isWeekend) {
+                            tagClass = 'bg-orange-100 text-orange-700';
+                            tagText = 'Hafta Sonu';
+                        } else if (isHoliday) {
+                            tagClass = 'bg-rose-100 text-rose-700';
+                            tagText = 'Resmi Tatil';
+                        }
 
                         return (
                             <div key={index} className="flex items-center gap-4 p-4 rounded-xl border border-slate-50 hover:border-slate-100 hover:bg-slate-50/50 transition-colors group">
                                 {/* Date Box */}
-                                <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg flex-shrink-0 ${isWeekend ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
-                                    }`}>
+                                <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg flex-shrink-0 ${dateBoxClass}`}>
                                     <span className="text-xs font-bold opacity-80">{month}</span>
                                     <span className="text-xl font-bold leading-none">{day}</span>
                                 </div>
@@ -51,11 +66,8 @@ export default function RecentShifts({ shifts = [] }) {
                                 </div>
 
                                 {/* Tag */}
-                                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${isWeekend
-                                    ? 'bg-orange-100 text-orange-700'
-                                    : 'bg-blue-100 text-blue-700'
-                                    }`}>
-                                    {isWeekend ? 'Hafta Sonu' : 'Hafta İçi'}
+                                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${tagClass}`}>
+                                    {tagText}
                                 </div>
                             </div>
                         );

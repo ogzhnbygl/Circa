@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
-export default function RecentLeaves({ leaves }) {
+export default function RecentLeaves({ leaves, onViewAll }) {
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -40,8 +40,9 @@ export default function RecentLeaves({ leaves }) {
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-            <div className="px-6 py-4 border-b border-slate-200">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
                 <h2 className="text-lg font-bold text-slate-800">Son İzin Hareketleri</h2>
+                <button onClick={onViewAll} className="text-blue-600 text-sm font-semibold hover:text-blue-700">Tümünü Gör</button>
             </div>
 
             <div className="divide-y divide-slate-100">
