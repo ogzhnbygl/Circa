@@ -56,9 +56,12 @@ export default function RecentLeaves({ leaves }) {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <span className={`w-2 h-2 rounded-full ${leave.unit === 'daily' ? 'bg-blue-500' : 'bg-purple-500'}`}></span>
-                                        <span className="text-sm font-medium text-slate-900">
-                                            {leave.unit === 'daily' ? 'Tam Gün İzin' : 'Saatlik İzin'}
-                                        </span>
+                                        <div className="flex flex-col">
+                                            {leave.name && <span className="text-xs font-bold text-blue-600">{leave.name}</span>}
+                                            <span className="text-sm font-medium text-slate-900">
+                                                {leave.unit === 'daily' ? 'Tam Gün İzin' : 'Saatlik İzin'}
+                                            </span>
+                                        </div>
                                         {getStatusBadge(leave.status)}
                                     </div>
 

@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
         try {
             // Admin sees all, user sees own
-            const query = user.role === 'admin' ? {} : { username: user.username };
+            const query = user.role === 'admin' ? {} : { email: user.email };
 
             const timeOffs = await collection
                 .find(query)
