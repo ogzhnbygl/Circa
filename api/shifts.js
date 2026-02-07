@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
         try {
             // Admin sees all shifts, others see only their own
-            const query = user.role === 'admin' ? {} : { email: user.email };
+            const query = user.role === 'admin' ? {} : { username: user.username };
 
             const shifts = await collection
                 .find(query)
@@ -41,9 +41,9 @@ export default async function handler(req, res) {
             }
 
             const newShift = {
-                email: user.email, // Link to user
-                userName: user.name,
-                userId: user.id || user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
                 date,
                 shiftType,
                 startTime,
