@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
-export default function RecentLeaves({ leaves, onViewAll }) {
+export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove }) {
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -15,7 +15,8 @@ export default function RecentLeaves({ leaves, onViewAll }) {
         return `${dates.length} Gün (${formatDate(dates[0])} - ${formatDate(dates[dates.length - 1])})`;
     };
 
-    const getStatusBadge = (status) => {
+    const getStatusBadge = (leave) => {
+        const { status, _id } = leave;
         switch (status) {
             case 'approved':
                 return (
@@ -30,8 +31,18 @@ export default function RecentLeaves({ leaves, onViewAll }) {
                     </span>
                 );
             default:
+                const isActionable = isAdmin && onApprove;
                 return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <span
+                        onClick={(e) => {
+                            if (isActionable) {
+                                e.stopPropagation();
+                                onApprove(_id);
+                            }
+                        }}
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ${isActionable ? 'cursor-pointer hover:bg-yellow-200 transition-colors' : ''}`}
+                        title={isActionable ? 'Onaylamak için tıklayın' : ''}
+                    >
                         <AlertCircle className="w-3 h-3" /> Bekliyor
                     </span>
                 );
@@ -63,7 +74,7 @@ export default function RecentLeaves({ leaves, onViewAll }) {
                                                 {leave.unit === 'daily' ? 'Tam Gün İzin' : 'Saatlik İzin'}
                                             </span>
                                         </div>
-                                        {getStatusBadge(leave.status)}
+                                        {getStatusBadge(leave)}
                                     </div>
 
                                     <div className="flex items-center gap-2 text-sm text-slate-500">

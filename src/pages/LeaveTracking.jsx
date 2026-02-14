@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import LeaveForm from '../components/LeaveForm';
 import RecentLeaves from '../components/RecentLeaves';
 
+import { useAuth } from '../context/AuthContext';
+
 export default function LeaveTracking() {
+    const { user } = useAuth();
     const [timeOffs, setTimeOffs] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -46,6 +49,32 @@ export default function LeaveTracking() {
         }
     };
 
+    const handleApproveLeave = async (id) => {
+        if (!confirm('Bu izin talebini onaylamak ve bakiyeden düşmek istediğinize emin misiniz?')) {
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/time-offs/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert(data.message);
+                fetchTimeOffs(); // Refresh list
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            console.error('Approval Error:', error);
+            alert(error.message || 'Onaylama işlemi başarısız oldu.');
+        }
+    };
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column: Form */}
@@ -55,7 +84,12 @@ export default function LeaveTracking() {
 
             {/* Right Column: List */}
             <div className="lg:col-span-2">
-                <RecentLeaves leaves={timeOffs} onViewAll={() => fetchTimeOffs(50)} />
+                <RecentLeaves
+                    leaves={timeOffs}
+                    onViewAll={() => fetchTimeOffs(50)}
+                    isAdmin={user?.role === 'admin'}
+                    onApprove={handleApproveLeave}
+                />
             </div>
         </div>
     );
