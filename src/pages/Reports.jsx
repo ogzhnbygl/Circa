@@ -12,6 +12,8 @@ export default function Reports() {
     const [processing, setProcessing] = useState(false);
     const [isProcessed, setIsProcessed] = useState(false);
     const [processedDate, setProcessedDate] = useState(null);
+    const [balance, setBalance] = useState(null);
+    const [loadingBalance, setLoadingBalance] = useState(false);
 
     useEffect(() => {
         fetchShifts();
@@ -30,6 +32,23 @@ export default function Reports() {
             }
         } catch (error) {
             console.error('Status check failed:', error);
+        }
+    };
+
+    const handleCheckBalance = async () => {
+        setLoadingBalance(true);
+        try {
+            const res = await fetch('/api/reports/balance');
+            if (res.ok) {
+                const data = await res.json();
+                setBalance(data.totalBalance);
+            } else {
+                alert('Bakiye sorgulanamadı.');
+            }
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+        } finally {
+            setLoadingBalance(false);
         }
     };
 
@@ -131,6 +150,21 @@ export default function Reports() {
 
                     {/* Quick Stats */}
                     <div className="flex items-center gap-6 text-sm">
+                        <div className="flex flex-col items-end">
+                            <span className="text-slate-400 text-xs font-medium">Mevcut Bakiye</span>
+                            {balance !== null ? (
+                                <span className={`font-bold ${balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{balance} Saat</span>
+                            ) : (
+                                <button
+                                    onClick={handleCheckBalance}
+                                    disabled={loadingBalance}
+                                    className="text-blue-600 hover:text-blue-700 font-bold text-xs"
+                                >
+                                    {loadingBalance ? '...' : 'Sorgula'}
+                                </button>
+                            )}
+                        </div>
+                        <div className="w-px h-8 bg-slate-100"></div>
                         <div className="flex flex-col items-end">
                             <span className="text-slate-400 text-xs font-medium">Toplam Kayıt</span>
                             <span className="font-bold text-slate-700">{shifts.length}</span>
@@ -237,8 +271,8 @@ export default function Reports() {
                                 onClick={handleProcessShifts}
                                 disabled={shifts.length === 0 || processing}
                                 className={`flex items-center gap-2 transition-colors disabled:opacity-50 ${isProcessed
-                                        ? 'text-emerald-700 hover:text-emerald-900 bg-emerald-50/50 hover:bg-emerald-100/50 px-2 py-1 rounded'
-                                        : 'hover:text-slate-700'
+                                    ? 'text-emerald-700 hover:text-emerald-900 bg-emerald-50/50 hover:bg-emerald-100/50 px-2 py-1 rounded'
+                                    : 'hover:text-slate-700'
                                     }`}
                             >
                                 {processing ? (
