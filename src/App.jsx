@@ -2,18 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from './context/AuthContext';
 import AddShiftForm from './components/AddShiftForm';
 import RecentShifts from './components/RecentShifts';
-import LeaveForm from './components/LeaveForm';
-import RecentLeaves from './components/RecentLeaves';
+
 import Reports from './pages/Reports';
+import LeaveTracking from './pages/LeaveTracking'; // New import
 import { Clock, LogOut } from 'lucide-react';
 
 function App() {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [shifts, setShifts] = useState([]);
-    const [timeOffs, setTimeOffs] = useState([]); // New state
     const [loadingShifts, setLoadingShifts] = useState(false);
-    const [loadingTimeOffs, setLoadingTimeOffs] = useState(false); // New state
 
     // Fetch shifts on mount
     useEffect(() => {
@@ -22,48 +20,7 @@ function App() {
         }
     }, [user]);
 
-    // Fetch time-offs when tab changes
-    useEffect(() => {
-        if (user && activeTab === 'permissions') {
-            fetchTimeOffs();
-        }
-    }, [user, activeTab]);
 
-    const fetchTimeOffs = async (limit = 10) => {
-        try {
-            setLoadingTimeOffs(true);
-            const res = await fetch(`/api/time-offs?limit=${limit}`);
-            if (res.ok) {
-                const data = await res.json();
-                setTimeOffs(data);
-            }
-        } catch (error) {
-            console.error('Error fetching time-offs:', error);
-        } finally {
-            setLoadingTimeOffs(false);
-        }
-    };
-
-    const handleCreateTimeOff = async (payload) => {
-        try {
-            const res = await fetch('/api/time-offs', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                await fetchTimeOffs();
-                alert('İzin talebi başarıyla oluşturuldu!');
-            } else {
-                const err = await res.json();
-                alert(err.error || 'Hata oluştu.');
-            }
-        } catch (error) {
-            console.error('Error creating time-off:', error);
-            alert('Bağlantı hatası.');
-        }
-    };
 
     const fetchShifts = async (limit = 5) => {
         try {
@@ -181,17 +138,7 @@ function App() {
                 )}
 
                 {activeTab === 'permissions' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Left Column: Form */}
-                        <div className="lg:col-span-1">
-                            <LeaveForm onSubmit={handleCreateTimeOff} />
-                        </div>
-
-                        {/* Right Column: List */}
-                        <div className="lg:col-span-2">
-                            <RecentLeaves leaves={timeOffs} onViewAll={() => fetchTimeOffs(50)} />
-                        </div>
-                    </div>
+                    <LeaveTracking />
                 )}
 
                 {activeTab === 'reports' && (
