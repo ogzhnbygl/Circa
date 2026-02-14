@@ -16,6 +16,35 @@ export default async function handler(req, res) {
         try {
             // Admin sees all shifts, others see only their own
             const query = user.role === 'admin' ? {} : { email: user.email };
+
+            // Date filtering
+            const { month, year } = req.query;
+            if (month && year) {
+                const startDate = new Date(year, month - 1, 1);
+                const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+                // Add date range to query (assuming 'date' field stores the shift date/time as string or Date)
+                // Note: If 'date' is stored as a string (YYYY-MM-DD...), we might need regex or convert to Date object in DB
+                // Based on previous code, 'date' seems to be the main field. 
+                // However, MongoDB usually stores dates as ISODate. 
+                // Let's assume standard string comparison works if strict ISO or let's try to query by range.
+                // Re-checking the POST handler: "date" comes from body. It's likely a string from the frontend.
+                // If it's saved as string, we should match by string prefix like "YYYY-MM"
+
+                // Construct regex for string date "YYYY-MM"
+                const monthStr = month.toString().padStart(2, '0');
+                const datePattern = `^${year}-${monthStr}`;
+                query.date = { $regex: datePattern };
+
+                // For monthly report, we typically want ALL records, not just 5
+                const shifts = await collection
+                    .find(query)
+                    .sort({ date: 1 }) // Sort chronological for reports
+                    .toArray();
+
+                return res.status(200).json(shifts);
+            }
+
             const limit = parseInt(req.query.limit) || 5;
 
             const shifts = await collection
