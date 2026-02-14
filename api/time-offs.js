@@ -52,7 +52,6 @@ export default async function handler(req, res) {
             const newTimeOff = {
                 name: user.name,
                 email: user.email,
-                username: user.username,
                 unit,
                 dates: unit === 'daily' ? dates.map(d => new Date(d)) : [],
                 singleDate: unit === 'hourly' ? new Date(singleDate) : null,

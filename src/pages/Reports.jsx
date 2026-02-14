@@ -1,14 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Clock, User, Download, Filter } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock, User, Download, Filter, FileText } from 'lucide-react';
+
+import { useAuth } from '../context/AuthContext';
 
 export default function Reports() {
+    const { user } = useAuth();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [shifts, setShifts] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const [processing, setProcessing] = useState(false);
+    const [isProcessed, setIsProcessed] = useState(false);
+    const [processedDate, setProcessedDate] = useState(null);
+
     useEffect(() => {
         fetchShifts();
+        fetchStatus();
     }, [selectedDate]);
+
+    const fetchStatus = async () => {
+        try {
+            const month = selectedDate.getMonth() + 1;
+            const year = selectedDate.getFullYear();
+            const res = await fetch(`/api/reports/status?month=${month}&year=${year}`);
+            if (res.ok) {
+                const data = await res.json();
+                setIsProcessed(data.processed);
+                setProcessedDate(data.lastProcessedAt);
+            }
+        } catch (error) {
+            console.error('Status check failed:', error);
+        }
+    };
+
+    const handleProcessShifts = async () => {
+        let confirmMessage = 'Bu ayın mesailerini işlemek istediğinize emin misiniz?';
+
+        if (isProcessed) {
+            const dateStr = processedDate ? new Date(processedDate).toLocaleString('tr-TR') : '';
+            confirmMessage = `DİKKAT: Bu ay daha önce ${dateStr} tarihinde işlenmiş!\n\nTekrar işlemek mevcut bakiyeleri yeniden hesaplayıp güncelleyecektir.\n\nDevam etmek istiyor musunuz?`;
+        } else {
+            confirmMessage += ' Bu işlem mevcut bakiyeleri güncelleyecektir.';
+        }
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        setProcessing(true);
+        try {
+            const month = selectedDate.getMonth() + 1;
+            const year = selectedDate.getFullYear();
+
+            const response = await fetch('/api/reports/process-monthly', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ month, year })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`İşlem başarılı! ${data.processedCount} kişinin bakiyesi güncellendi.`);
+                fetchStatus(); // Update status
+            } else {
+                throw new Error(data.error || 'İşlem başarısız.');
+            }
+        } catch (error) {
+            console.error('Process error:', error);
+            alert(error.message);
+        } finally {
+            setProcessing(false);
+        }
+    };
 
     const fetchShifts = async () => {
         setLoading(true);
@@ -144,10 +208,10 @@ export default function Reports() {
                                         </td>
                                         <td className="px-6 py-3.5 text-right">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${shift.shiftType === 'weekend'
-                                                    ? 'bg-orange-50 text-orange-600 border border-orange-100'
-                                                    : shift.shiftType === 'holiday'
-                                                        ? 'bg-rose-50 text-rose-600 border border-rose-100'
-                                                        : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                                ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                                                : shift.shiftType === 'holiday'
+                                                    ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                                                    : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                 }`}>
                                                 {shift.shiftType === 'weekend' ? 'Hafta Sonu' :
                                                     shift.shiftType === 'holiday' ? 'Resmi Tatil' : 'Hafta İçi'}
@@ -163,10 +227,34 @@ export default function Reports() {
                 {/* Footer Section */}
                 <div className="bg-slate-50 border-t border-slate-100 px-6 py-3 flex justify-between items-center text-xs text-slate-500">
                     <span>Toplam {shifts.length} kayıt listeleniyor</span>
-                    <button className="flex items-center gap-2 hover:text-slate-700 transition-colors disabled:opacity-50" disabled={shifts.length === 0}>
-                        <Download className="w-3.5 h-3.5" />
-                        Excel İndir
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button className="flex items-center gap-2 hover:text-slate-700 transition-colors disabled:opacity-50" disabled={shifts.length === 0}>
+                            <Download className="w-3.5 h-3.5" />
+                            Excel İndir
+                        </button>
+                        {user?.role === 'admin' && (
+                            <button
+                                onClick={handleProcessShifts}
+                                disabled={shifts.length === 0 || processing}
+                                className={`flex items-center gap-2 transition-colors disabled:opacity-50 ${isProcessed
+                                        ? 'text-emerald-700 hover:text-emerald-900 bg-emerald-50/50 hover:bg-emerald-100/50 px-2 py-1 rounded'
+                                        : 'hover:text-slate-700'
+                                    }`}
+                            >
+                                {processing ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <FileText className={`w-3.5 h-3.5 ${isProcessed ? 'text-emerald-600' : ''}`} />
+                                )}
+                                {processing ? 'İşleniyor...' : isProcessed ? 'Tekrar İşle (İşlendi)' : 'Aylık Mesaileri İşle'}
+                            </button>
+                        )}
+                        {isProcessed && (
+                            <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                                ✓ İşlendi
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

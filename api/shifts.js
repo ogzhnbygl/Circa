@@ -73,7 +73,6 @@ export default async function handler(req, res) {
             const newShift = {
                 name: user.name,
                 email: user.email,
-                username: user.username,
                 date,
                 shiftType,
                 startTime,
