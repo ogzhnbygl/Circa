@@ -49,6 +49,23 @@ export default function LeaveTracking() {
         }
     };
 
+    const [userBalance, setUserBalance] = useState(0);
+
+    useEffect(() => {
+        const fetchBalance = async () => {
+            try {
+                const res = await fetch('/api/reports/balance');
+                if (res.ok) {
+                    const data = await res.json();
+                    setUserBalance(data.totalBalance || 0);
+                }
+            } catch (error) {
+                console.error('Error fetching balance:', error);
+            }
+        };
+        fetchBalance();
+    }, []);
+
     const handleApproveLeave = async (id) => {
         if (!confirm('Bu izin talebini onaylamak ve bakiyeden düşmek istediğinize emin misiniz?')) {
             return;
@@ -89,6 +106,8 @@ export default function LeaveTracking() {
                     onViewAll={() => fetchTimeOffs(50)}
                     isAdmin={user?.role === 'admin'}
                     onApprove={handleApproveLeave}
+                    user={user}
+                    userBalance={userBalance}
                 />
             </div>
         </div>

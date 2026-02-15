@@ -1,7 +1,17 @@
 import React from 'react';
-import { Clock, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react';
+import { generateLeavePetition } from '../utils/generateLeavePetition';
 
-export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove }) {
+export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove, user, userBalance }) {
+
+    const handleDownloadPetition = async (leave) => {
+        try {
+            await generateLeavePetition(user, leave, userBalance);
+        } catch (error) {
+            console.error('Petition generation error:', error);
+            alert('Dilekçe oluşturulurken bir hata oluştu');
+        }
+    };
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -33,18 +43,32 @@ export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove }) 
             default:
                 const isActionable = isAdmin && onApprove;
                 return (
-                    <span
-                        onClick={(e) => {
-                            if (isActionable) {
+                    <div className="flex items-center gap-2">
+                        <span
+                            onClick={(e) => {
+                                if (isActionable) {
+                                    e.stopPropagation();
+                                    onApprove(_id);
+                                }
+                            }}
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ${isActionable ? 'cursor-pointer hover:bg-yellow-200 transition-colors' : ''}`}
+                            title={isActionable ? 'Onaylamak için tıklayın' : 'Bekliyor'}
+                        >
+                            <AlertCircle className="w-3 h-3" /> Bekliyor
+                        </span>
+
+                        {/* Explicit Download Button for Petition */}
+                        <button
+                            onClick={(e) => {
                                 e.stopPropagation();
-                                onApprove(_id);
-                            }
-                        }}
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ${isActionable ? 'cursor-pointer hover:bg-yellow-200 transition-colors' : ''}`}
-                        title={isActionable ? 'Onaylamak için tıklayın' : ''}
-                    >
-                        <AlertCircle className="w-3 h-3" /> Bekliyor
-                    </span>
+                                handleDownloadPetition(leave);
+                            }}
+                            className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                            title="Dilekçe Oluştur ve İndir"
+                        >
+                            <FileText className="w-4 h-4" />
+                        </button>
+                    </div>
                 );
         }
     };
