@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Download, Filter, FileText } from 'lucide-react';
-
 import { useAuth } from '../context/AuthContext';
+import { generatePetition } from '../utils/generatePetition';
 
 export default function Reports() {
     const { user } = useAuth();
@@ -14,6 +14,7 @@ export default function Reports() {
     const [processedDate, setProcessedDate] = useState(null);
     const [balance, setBalance] = useState(null);
     const [loadingBalance, setLoadingBalance] = useState(false);
+    const [generatingPdf, setGeneratingPdf] = useState(false);
 
     useEffect(() => {
         fetchShifts();
@@ -49,6 +50,20 @@ export default function Reports() {
             console.error('Error fetching balance:', error);
         } finally {
             setLoadingBalance(false);
+        }
+    };
+
+    const handleDownloadPetition = async () => {
+        setGeneratingPdf(true);
+        try {
+            const month = selectedDate.getMonth() + 1;
+            const year = selectedDate.getFullYear();
+            await generatePetition(month, year, shifts);
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            alert('Dilekçe oluşturulurken bir hata oluştu: ' + error.message);
+        } finally {
+            setGeneratingPdf(false);
         }
     };
 
@@ -266,6 +281,20 @@ export default function Reports() {
                             <Download className="w-3.5 h-3.5" />
                             Excel İndir
                         </button>
+                        {user?.role === 'admin' && (
+                            <button
+                                onClick={handleDownloadPetition}
+                                disabled={shifts.length === 0 || generatingPdf}
+                                className="flex items-center gap-2 hover:text-slate-700 transition-colors disabled:opacity-50"
+                            >
+                                {generatingPdf ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <FileText className="w-3.5 h-3.5" />
+                                )}
+                                Dilekçe İndir
+                            </button>
+                        )}
                         {user?.role === 'admin' && (
                             <button
                                 onClick={handleProcessShifts}
