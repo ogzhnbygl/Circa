@@ -1,6 +1,16 @@
-# Teknik Dokümantasyon
+# Circa - Teknik Dokümantasyon
 
-## Proje Yapısı
+Bu doküman, Circa modülünün teknik mimarisini, veritabanı yapısını ve API referanslarını detaylandırır.
+
+## 🏗️ Mimari Genel Bakış
+
+Circa, Apex ekosistemi içinde çalışan, ancak kendi veritabanı koleksiyonuna sahip bağımsız bir modüldür.
+
+- **Frontend:** React SPA.
+- **Backend:** Vercel Serverless Functions.
+- **Auth:** Apex üzerinden sağlanan Paylaşılan Oturum (Shared Session).
+
+## 📂 Dizin Yapısı
 
 ```
 Circa/
@@ -18,7 +28,22 @@ Circa/
 └── package.json        # Proje bağımlılıkları ve scriptler
 ```
 
-## API Referansı
+## 🗄️ Veritabanı Şeması
+
+**Collection**: `shifts` (MongoDB)
+
+Veritabanı bağlantısı `MONGODB_URI` üzerinden sağlanır.
+
+| Alan Adı | Tip | Açıklama |
+| :--- | :--- | :--- |
+| `_id` | ObjectId | Benzersiz kayıt ID'si |
+| `userId` | String | Kaydı oluşturan kullanıcının ID'si (Auth'dan gelir) |
+| `startDate` | Date | Mesai başlangıç zamanı (ISO 8601) |
+| `endDate` | Date | Mesai bitiş zamanı (ISO 8601) |
+| `description` | String | Açıklama notu (Opsiyonel) |
+| `createdAt` | Date | Kayıt oluşturulma zamanı |
+
+## 🔌 API Referansı
 
 ### Shifts API
 
@@ -35,15 +60,13 @@ Circa/
       "userId": "user_id_123",
       "startDate": "2024-02-06T09:00:00.000Z",
       "endDate": "2024-02-06T18:00:00.000Z",
-      "description": "Günlük mesai",
-      "createdAt": "2024-02-06T08:55:00.000Z"
+      "description": "Günlük mesai"
     }
   ]
   ```
 
 #### 2. Yeni Mesai Ekleme
 - **Endpoint**: `POST /api/shifts`
-- **Açıklama**: Yeni bir mesai kaydı oluşturur.
 - **Body**:
   ```json
   {
@@ -52,31 +75,8 @@ Circa/
     "description": "Proje A çalışması"
   }
   ```
-- **Yanıt**:
-  - `201 Created`: Kayıt başarılı.
-  - `400 Bad Request`: Eksik veya hatalı veri.
-  - `401 Unauthorized`: Oturum açılmamış.
 
-## Veritabanı Şeması (Tahmini)
+## 🔐 Güvenlik
 
-**Collection**: `shifts`
-
-| Alan Adı | Tip | Açıklama |
-|---|---|---|
-| `_id` | ObjectId | Benzersiz kayıt ID'si |
-| `userId` | String | Kaydı oluşturan kullanıcının ID'si (Auth'dan gelir) |
-| `startDate` | Date | Mesai başlangıç zamanı |
-| `endDate` | Date | Mesai bitiş zamanı |
-| `description` | String | Açıklama notu |
-| `createdAt` | Date | Kayıt oluşturulma zamanı |
-
-## Çevresel Değişkenler (.env)
-
-| Değişken | Açıklama | Örnek |
-|---|---|---|
-| `MONGODB_URI` | MongoDB bağlantı stringi | `mongodb+srv://user:pass@cluster.mongodb.net/circa` |
-
-## Kurulum Notları
-
-- Vercel üzerinde `MONGODB_URI` environment variable'ı tanımlanmalıdır.
-- API rotaları `vercel.json` veya varsayılan `/api` dizini üzerinden otomatik algılanır.
+- **Auth Check:** Her API isteğinde `verifyUser` fonksiyonu ile Apex'ten gelen oturum çerezi doğrulanır.
+- **Data Isolation:** Kullanıcılar sadece kendi (`userId` ile eşleşen) kayıtlarını görebilir.

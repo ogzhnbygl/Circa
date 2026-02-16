@@ -1,39 +1,37 @@
-# Circa Blueprint
+# Circa - Vizyon ve Blueprint
 
-## Genel Bakış
-Circa, vardiya ve mesai takibi için tasarlanmış web tabanlı bir uygulamadır. Apex ana uygulaması ile entegre çalışarak ortak kimlik doğrulama mekanizmasını kullanır.
+## 🌟 Vizyon
 
-## Mimari
+**Zaman**, en değerli ve geri döndürülemez kaynağımızdır. Circa, bu kaynağın nasıl kullanıldığını görünür kılmak için tasarlanmıştır.
 
-Uygulama, modern web standartlarına uygun olarak tasarlanmış olup, aşağıdaki bileşenlerden oluşur:
+Sadece bir "giriş-çıkış kartı" değil, çalışanların emeklerinin karşılığını şeffaf bir şekilde takip edebileceği, yöneticilerin ise iş gücü planlamasını veriye dayalı yapabileceği bir platformdur.
 
-### Frontend
-- **Framework**: React.js ile Tek Sayfalı Uygulama (SPA) mimarisi.
-- **Build Tool**: Vite, hızlı geliştirme ve derleme süreçleri için.
-- **Styling**: Tailwind CSS ile utility-first CSS yaklaşımı.
+> "Circa: Her saniyenin kaydı."
 
-### Backend (Serverless)
-- **Runtime**: Vercel Serverless Functions.
-- **API**: RESTful API endpoints.
-- **Veritabanı**: MongoDB (Cloud Atlas).
+## 🏗️ Mimari
 
-## Veri Akışı
+Circa, sadelik üzerine kurulmuştur. Karmaşık HR yönetim sistemlerinin aksine, "Tek İş, Tek Odak" prensibiyle çalışır.
 
-1. **Kullanıcı Etkileşimi**: Kullanıcı arayüz üzerinden veri girer (örn. mesai ekleme).
-2. **API İsteği**: React bileşeni, `/api` altındaki endpoint'lere asenkron istekler gönderir.
-3. **İşlem**: Serverless fonksiyon isteği karşılar, gerekli doğrulamaları (Authentication) yapar.
-4. **Veritabanı**: İşlenen veri MongoDB veritabanına kaydedilir veya sorgulanır.
-5. **Yanıt**: Sonuç JSON formatında frontend'e döner ve arayüz güncellenir.
+1.  **Hızlı Veri Girişi:** Kullanıcıyı yormayan, mümkünse tek tıkla işlem yapabilen arayüzler.
+2.  **Merkezi Entegrasyon:** Apex ile tam entegre çalışarak ekstra şifre veya kurulum gerektirmez.
 
-## Temel Bileşenler (React)
+## 🎨 Tasarım Prensipleri
 
-- **`App.jsx`**: Ana uygulama kapsayıcısı, routing ve layout yönetimi.
-- **`AddShiftForm.jsx`**: Yeni mesai kaydı oluşturma formu.
-- **`RecentShifts.jsx`**: Geçmiş mesai kayıtlarının listelendiği bileşen.
-- **`Reports.jsx`**: Grafikler ve özet tablolarla raporlama ekranı.
-- **`AuthContext.jsx`**: Kullanıcı oturum durumunun tüm uygulama genelinde yönetimi.
+- **Akışkanlık:** Arayüz, kullanıcının düşünce hızında hareket etmelidir. Bekleme süreleri minimize edilmiştir.
+- **Netlik:** Karmaşık tablolar yerine, anlaşılır grafikler ve özetler ön plandadır.
+- **Mobil Öncelikli:** Mesai takibi genellikle hareket halindeyken yapılır. Circa, mobil cihazlarda kusursuz çalışacak şekilde tasarlanmıştır.
 
-## Entegrasyonlar
+## 🗺️ Yol Haritası (Roadmap)
 
-- **Apex Auth**: Kullanıcı kimlik doğrulaması için merkezi Apex sistemini kullanır.
-- **Vercel**: Deployment ve serverless altyapısı.
+### Faz 1: Temel Fonksiyonlar (Tamamlandı ✅)
+- [x] Vardiya giriş ve çıkış kayıtları.
+- [x] Geçmiş kayıtların listelenmesi.
+- [x] Apex auth entegrasyonu.
+
+### Faz 2: Raporlama ve Analiz
+- [ ] **Grafiksel Raporlar:** Haftalık/Aylık çalışma sürelerinin görselleştirilmesi.
+- [ ] **PDF Export:** Resmi bordro veya raporlama için çıktı alabilme.
+
+### Faz 3: Akıllı Özellikler
+- [ ] **Otomatik Hatırlatıcılar:** Mesai bitiminde çıkış yapmayı unutan kullanıcılara bildirim.
+- [ ] **Vardiya Planlama:** Gelecek haftaların vardiya planını oluşturma ve paylaşma.

@@ -1,55 +1,77 @@
 # Circa - Mesai Takip Sistemi
 
-Circa, Apex ekosistemine entegre edilmiş, modern ve kullanıcı dostu bir mesai takip uygulamasıdır. Kullanıcıların mesai giriş-çıkışlarını kaydetmelerini, geçmiş kayıtlarını görüntülemelerini ve raporlar almalarını sağlar.
+Circa, Apex ekosistemine entegre edilmiş, modern ve kullanıcı dostu bir mesai ve vardiya takip uygulamasıdır. "Zamanın değerini bilmek", Circa'nın temel felsefesidir.
 
-## Özellikler
+## 🚀 Özellikler
 
-- **Kolay Mesai Girişi**: Kullanıcı dostu arayüz ile hızlıca vardiya ve mesai kaydı oluşturma.
-- **Geçmiş Görüntüleme**: Kaydedilen tüm mesailerin listelenmesi ve filtrelenmesi.
-- **Raporlama**: Mesai verileri üzerinden detaylı raporlar oluşturma (Geliştirme aşamasında).
-- **Apex Entegrasyonu**: Apex hesabı ile sorunsuz kimlik doğrulama ve geçiş.
+- **Kolay Mesai Girişi:**
+    - Kullanıcı dostu arayüz ile saniyeler içinde vardiya ve mesai kaydı oluşturma.
+    - Tarih ve saat manipülasyonları için optimize edilmiş form yapısı.
+- **Geçmiş Görüntüleme:**
+    - Kaydedilen tüm mesailerin kronolojik listesi.
+    - Gelişmiş filtreleme seçenekleri (tarih aralığı, proje bazlı).
+- **Raporlama ve Analiz:**
+    - Mesai verileri üzerinden detaylı grafikler ve özet kartları.
+    - Çalışan verimliliğini artıran içgörüler (Geliştirme aşamasında).
+- **Apex Entegrasyonu:**
+    - Apex hesabı ile sorunsuz "Single Sign-On" deneyimi.
+    - Merkezi güvenlik ve yetkilendirme.
 
-## Kurulum ve Çalıştırma
+## 🛠️ Teknolojiler
 
-Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
+Circa, performans ve kullanıcı deneyimi odaklı modern teknolojilerle inşa edilmiştir:
+
+### Frontend
+- **Framework:** [React](https://react.dev/)
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+
+### Backend
+- **Runtime:** [Vercel Serverless Functions](https://vercel.com/docs/functions)
+- **Database:** [MongoDB](https://www.mongodb.com/)
+
+## 📦 Kurulum
+
+Projeyi yerel ortamınızda çalıştırmak için:
 
 ### Gereksinimler
-
-- Node.js (v18 veya üzeri)
+- Node.js (v18+)
 - MongoDB veritabanı
 
 ### Adımlar
 
-1. Projeyi klonlayın ve proje dizinine gidin:
+1. **Repoyu klonlayın:**
    ```bash
    git clone <repo-url>
    cd Circa
    ```
 
-2. Bağımlılıkları yükleyin:
+2. **Bağımlılıkları yükleyin:**
    ```bash
    npm install
    ```
 
-3. Gerekli çevresel değişkenleri ayarlayın (`.env` dosyası oluşturun):
+3. **Çevresel Değişkenler:**
+   `.env` dosyasını oluşturun:
    ```env
-   MONGODB_URI=mongodb+srv://... (Veritabanı bağlantı adresi)
+   MONGODB_URI=mongodb+srv://...
    ```
 
-4. Geliştirme sunucusunu başlatın:
+4. **Geliştirme Sunucusunu Başlatın:**
    ```bash
    npm run dev
    ```
+   Uygulama `http://localhost:5173` adresinde çalışacaktır.
 
-Uygulama `http://localhost:5173` adresinde çalışacaktır.
+## 📂 Proje Yapısı
 
-## Teknolojiler
+- `/src`: Frontend kaynak kodları.
+- `/api`: Backend API fonksiyonları (Shifts).
+- `/public`: Statik dosyalar.
 
-- **Frontend**: React, Vite, Tailwind CSS, Lucide React
-- **Backend (API)**: Vercel Serverless Functions
-- **Veritabanı**: MongoDB
-- **Kimlik Doğrulama**: Apex Auth Entegrasyonu
+Detaylı teknik bilgi için [TECHNICAL.md](./TECHNICAL.md) dosyasına bakabilirsiniz.
 
-## Lisans
+## 📜 Lisans
 
 Bu proje özel mülkiyettir. İzinsiz kopyalanması ve dağıtılması yasaktır.
