@@ -1,6 +1,6 @@
 import React from 'react';
 import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react';
-import { generateLeavePetition } from '../utils/generateLeavePetition';
+import { generateLeavePetition } from '../utils/pdf/generateLeavePetition';
 
 export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove, user, userBalance }) {
 

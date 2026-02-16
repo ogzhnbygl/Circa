@@ -21,10 +21,15 @@ function vercelServerless() {
         }
 
         const url = new URL(req.url, `http://${req.headers.host}`);
-        const filePath = path.join(__dirname, 'api', url.pathname.replace('/api/', '') + '.js');
+        const apiPath = url.pathname.replace('/api/', '');
+        let filePath = path.join(__dirname, 'api', apiPath + '.js');
 
         if (!fs.existsSync(filePath)) {
-          return next();
+          // Check for index.js
+          filePath = path.join(__dirname, 'api', apiPath, 'index.js');
+          if (!fs.existsSync(filePath)) {
+            return next();
+          }
         }
 
         try {

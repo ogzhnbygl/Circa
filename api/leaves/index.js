@@ -1,4 +1,4 @@
-import { verifyUser } from './lib/auth.js';
+import { verifyUser } from '../lib/auth.js';
 
 export default async function handler(req, res) {
     let user;

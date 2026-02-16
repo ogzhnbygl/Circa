@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Clock, User, Download, Filter, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { generatePetition } from '../utils/generatePetition';
+import { generatePetition } from '../utils/pdf/generateShiftPetition';
 
 export default function Reports() {
     const { user } = useAuth();
@@ -25,7 +25,7 @@ export default function Reports() {
         try {
             const month = selectedDate.getMonth() + 1;
             const year = selectedDate.getFullYear();
-            const res = await fetch(`/api/reports/status?month=${month}&year=${year}`);
+            const res = await fetch(`/api/shifts/status?month=${month}&year=${year}`);
             if (res.ok) {
                 const data = await res.json();
                 setIsProcessed(data.processed);
@@ -39,7 +39,7 @@ export default function Reports() {
     const handleCheckBalance = async () => {
         setLoadingBalance(true);
         try {
-            const res = await fetch('/api/reports/balance');
+            const res = await fetch('/api/leaves/balance');
             if (res.ok) {
                 const data = await res.json();
                 setBalance(data.totalBalance);
@@ -86,7 +86,7 @@ export default function Reports() {
             const month = selectedDate.getMonth() + 1;
             const year = selectedDate.getFullYear();
 
-            const response = await fetch('/api/reports/process-monthly', {
+            const response = await fetch('/api/shifts/process', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ month, year })

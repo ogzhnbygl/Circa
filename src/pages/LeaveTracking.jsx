@@ -16,7 +16,7 @@ export default function LeaveTracking() {
     const fetchTimeOffs = async (limit = 10) => {
         try {
             setLoading(true);
-            const res = await fetch(`/api/time-offs?limit=${limit}`);
+            const res = await fetch(`/api/leaves?limit=${limit}`);
             if (res.ok) {
                 const data = await res.json();
                 setTimeOffs(data);
@@ -30,7 +30,7 @@ export default function LeaveTracking() {
 
     const handleCreateTimeOff = async (payload) => {
         try {
-            const res = await fetch('/api/time-offs', {
+            const res = await fetch('/api/leaves', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -54,7 +54,7 @@ export default function LeaveTracking() {
     useEffect(() => {
         const fetchBalance = async () => {
             try {
-                const res = await fetch('/api/reports/balance');
+                const res = await fetch('/api/leaves/balance');
                 if (res.ok) {
                     const data = await res.json();
                     setUserBalance(data.totalBalance || 0);
@@ -72,7 +72,7 @@ export default function LeaveTracking() {
         }
 
         try {
-            const res = await fetch('/api/time-offs/approve', {
+            const res = await fetch('/api/leaves/approve', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id })
