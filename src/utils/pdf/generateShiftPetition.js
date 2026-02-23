@@ -77,17 +77,21 @@ export const generatePetition = async (month, year, shifts) => {
 
     sortedShifts.forEach(shift => {
         const dateStr = new Date(shift.date).toLocaleDateString('tr-TR');
-        const start = parseInt(shift.startTime.split(':')[0]);
-        const end = parseInt(shift.endTime.split(':')[0]);
-        let duration = end - start;
-        if (duration < 0) duration += 24;
+        const startDt = new Date(`1970-01-01T${shift.startTime}:00`);
+        const endDt = new Date(`1970-01-01T${shift.endTime}:00`);
+        let hours = (endDt - startDt) / (1000 * 60 * 60);
+        if (hours < 0) hours += 24;
+
+        const h = Math.floor(hours);
+        const m = Math.round((hours - h) * 60);
+        const durationText = m > 0 ? `${h} Saat ${m} Dk` : `${h} Saat`;
 
         const rowData = [
             shift.name || shift.email,
             dateStr,
             shift.startTime,
             shift.endTime,
-            `${duration} Saat`
+            durationText
         ];
         tableRows.push(rowData);
     });
@@ -128,9 +132,9 @@ export const generatePetition = async (month, year, shifts) => {
     const userTotals = {};
 
     shifts.forEach(shift => {
-        const start = parseInt(shift.startTime.split(':')[0]);
-        const end = parseInt(shift.endTime.split(':')[0]);
-        let hours = end - start;
+        const startDt = new Date(`1970-01-01T${shift.startTime}:00`);
+        const endDt = new Date(`1970-01-01T${shift.endTime}:00`);
+        let hours = (endDt - startDt) / (1000 * 60 * 60);
         if (hours < 0) hours += 24;
 
         const shiftDate = new Date(shift.date);
@@ -175,8 +179,12 @@ export const generatePetition = async (month, year, shifts) => {
     currentY += 7 + summaryDimensions.h + 5; // Title margin + Text height + Spacing
 
     Object.values(userTotals).forEach(user => {
+        const h = Math.floor(user.total);
+        const m = Math.round((user.total - h) * 60);
+        const totalText = m > 0 ? `${h} Saat ${m} Dk` : `${h} Saat`;
+
         // Bullet point alignment
-        doc.text(`• ${user.name}: ${user.total} Saat`, 20, currentY);
+        doc.text(`• ${user.name}: ${totalText}`, 20, currentY);
         currentY += 7;
     });
 
