@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
             const shifts = await collection
                 .find(query)
-                .sort({ date: -1, _id: -1 }) // Sort by date desc
+                .sort({ createdAt: -1 }) // Son eklenenler en üstte görünsün (Son hareketler)
                 .limit(limit)
                 .toArray();
 

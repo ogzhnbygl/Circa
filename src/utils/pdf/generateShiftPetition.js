@@ -133,9 +133,15 @@ export const generatePetition = async (month, year, shifts) => {
         let hours = end - start;
         if (hours < 0) hours += 24;
 
-        let multiplier = 1.0;
-        if (shift.shiftType === 'weekend') multiplier = 1.5;
-        if (shift.shiftType === 'holiday') multiplier = 2.0;
+        const shiftDate = new Date(shift.date);
+        const dayOfWeek = shiftDate.getDay(); // 0 is Sunday, 6 is Saturday
+
+        let multiplier = 1.7; // Varsayılan: Hafta içi ve Cumartesi
+
+        if (shift.shiftType === 'holiday' || dayOfWeek === 0) {
+            // Resmi tatil veya Pazar günü
+            multiplier = 3.0;
+        }
 
         const earned = hours * multiplier;
         const email = shift.email;

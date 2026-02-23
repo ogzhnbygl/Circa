@@ -48,9 +48,15 @@ export default async function handler(req, res) {
 
             if (hours < 0) hours += 24; // Handle overnight shifts if necessary (simple case)
 
-            let multiplier = 1.0;
-            if (shift.shiftType === 'weekend') multiplier = 1.5;
-            else if (shift.shiftType === 'holiday') multiplier = 2.0;
+            const shiftDate = new Date(shift.date);
+            const dayOfWeek = shiftDate.getDay(); // 0 is Sunday, 6 is Saturday
+
+            let multiplier = 1.7; // Varsayılan: Hafta içi ve Cumartesi
+
+            if (shift.shiftType === 'holiday' || dayOfWeek === 0) {
+                // Resmi tatil veya Pazar günü
+                multiplier = 3.0;
+            }
 
             const weightedHours = hours * multiplier;
 

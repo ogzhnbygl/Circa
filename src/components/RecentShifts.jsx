@@ -25,7 +25,11 @@ export default function RecentShifts({ shifts = [], onViewAll }) {
                         Henüz hiç mesai kaydı girmediniz.
                     </div>
                 ) : (
-                    shifts.map((shift, index) => {
+                    [...shifts].sort((a, b) => {
+                        const dateA = new Date(a.createdAt || a.date);
+                        const dateB = new Date(b.createdAt || b.date);
+                        return dateB - dateA;
+                    }).map((shift, index) => {
                         const { day, month } = formatDate(shift.date);
                         const isWeekend = shift.shiftType === 'weekend';
                         const isHoliday = shift.shiftType === 'holiday';
