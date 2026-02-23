@@ -9,7 +9,8 @@ export default function RecentShifts({ shifts = [], onViewAll }) {
         // Turkish month abbreviation manually map if needed, or use toLocaleDateString
         const day = date.getDate().toString().padStart(2, '0');
         const month = date.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase();
-        return { day, month };
+        const year = date.getFullYear();
+        return { day, month, year };
     };
 
     return (
@@ -30,7 +31,7 @@ export default function RecentShifts({ shifts = [], onViewAll }) {
                         const dateB = new Date(b.createdAt || b.date);
                         return dateB - dateA;
                     }).map((shift, index) => {
-                        const { day, month } = formatDate(shift.date);
+                        const { day, month, year } = formatDate(shift.date);
                         const isWeekend = shift.shiftType === 'weekend';
                         const isHoliday = shift.shiftType === 'holiday';
 
@@ -53,8 +54,8 @@ export default function RecentShifts({ shifts = [], onViewAll }) {
                             <div key={index} className="flex items-center gap-4 p-4 rounded-xl border border-slate-50 hover:border-slate-100 hover:bg-slate-50/50 transition-colors group">
                                 {/* Date Box */}
                                 <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg flex-shrink-0 ${dateBoxClass}`}>
-                                    <span className="text-xs font-bold opacity-80">{month}</span>
-                                    <span className="text-xl font-bold leading-none">{day}</span>
+                                    <span className="text-[10px] font-bold opacity-80 leading-none">{month} '{String(year).slice(-2)}</span>
+                                    <span className="text-xl font-bold leading-none mt-0.5">{day}</span>
                                 </div>
 
                                 {/* Content */}
