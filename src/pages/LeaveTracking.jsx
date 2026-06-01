@@ -92,6 +92,30 @@ export default function LeaveTracking() {
         }
     };
 
+    const handleCancelLeave = async (id) => {
+        if (!confirm('Bu izin talebini iptal etmek istediğinize emin misiniz? (Bu işlem geri alınamaz ve izin kaydı tamamen silinir)')) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/leaves?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert(data.message || 'İzin talebi başarıyla iptal edildi.');
+                fetchTimeOffs(); // Refresh list
+            } else {
+                throw new Error(data.error || 'İptal işlemi başarısız oldu.');
+            }
+        } catch (error) {
+            console.error('Cancel Error:', error);
+            alert(error.message || 'İptal işlemi sırasında bir hata oluştu.');
+        }
+    };
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column: Form */}
@@ -106,6 +130,7 @@ export default function LeaveTracking() {
                     onViewAll={() => fetchTimeOffs(50)}
                     isAdmin={user?.role === 'admin'}
                     onApprove={handleApproveLeave}
+                    onCancel={handleCancelLeave}
                     user={user}
                     userBalance={userBalance}
                 />

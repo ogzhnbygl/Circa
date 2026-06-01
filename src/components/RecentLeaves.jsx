@@ -1,8 +1,8 @@
 import React from 'react';
-import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react';
+import { Clock, Calendar, CheckCircle, XCircle, AlertCircle, FileText, Trash2 } from 'lucide-react';
 import { generateLeavePetition } from '../utils/pdf/generateLeavePetition';
 
-export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove, user, userBalance }) {
+export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove, onCancel, user, userBalance }) {
 
     const handleDownloadPetition = async (leave) => {
         try {
@@ -68,6 +68,20 @@ export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove, us
                         >
                             <FileText className="w-4 h-4" />
                         </button>
+
+                        {/* Cancel Button (Trash icon) for owner or admin */}
+                        {(isAdmin || leave.email === user?.email) && onCancel && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCancel(_id);
+                                }}
+                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                                title="Talebi İptal Et / Sil"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                 );
         }
