@@ -72,10 +72,8 @@ export const generateLeavePetition = async (user, leaveRequest, totalBalance) =>
         endDateStr = '...';
     }
 
-    // "Mesai Hakkının Doğduğu Tarih" - user didn't specify where this comes from. 
-    // Usually start of year or employment. putting a placeholder or current year start?
-    // User text: "[Mesai Hakkının Doğduğu Tarih] tarihinden itibaren..."
-    const workRightDate = `01.01.${new Date().getFullYear()}`;
+    // İzin dilekçesinin alındığı günün tarihi
+    const workRightDate = new Date().toLocaleDateString('tr-TR');
 
     const bodyText1 = `${workRightDate} tarihinden itibaren gerçekleştirmiş olduğum çalışmalar neticesinde toplam ${totalBalance} saat fazla mesai izin hakkım bulunmaktadır.`;
     const bodyText2 = `Söz konusu fazla mesai alacaklarıma istinaden, ${startDateStr} ile ${endDateStr} tarihleri arasında toplam ${leaveRequest.totalHours} saat mesai izni kullanmak istiyorum.`;
