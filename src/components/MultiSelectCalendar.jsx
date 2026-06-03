@@ -27,7 +27,9 @@ export default function MultiSelectCalendar({ selectedDates = [], onChange }) {
     };
 
     const toggleDate = (day) => {
-        const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day + 1).toISOString().split('T')[0];
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const dateStr = `${year}-${month}-${String(day).padStart(2, '0')}`;
 
         let newSelectedDates;
         if (selectedDates.includes(dateStr)) {
@@ -40,7 +42,9 @@ export default function MultiSelectCalendar({ selectedDates = [], onChange }) {
     };
 
     const isSelected = (day) => {
-        const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day + 1).toISOString().split('T')[0];
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const dateStr = `${year}-${month}-${String(day).padStart(2, '0')}`;
         return selectedDates.includes(dateStr);
     };
 

@@ -4,8 +4,14 @@ import MultiSelectCalendar from './MultiSelectCalendar';
 
 export default function LeaveForm({ onSubmit }) {
     const [unit, setUnit] = useState('daily'); // 'daily' | 'hourly'
-    const [dates, setDates] = useState([new Date().toISOString().split('T')[0]]); // Default today
-    const [singleDate, setSingleDate] = useState(new Date().toISOString().split('T')[0]);
+    const [dates, setDates] = useState([(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    })()]); // Default today
+    const [singleDate, setSingleDate] = useState((() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    })());
     const [startTime, setStartTime] = useState('09:00');
     const [endTime, setEndTime] = useState('17:00');
     const [description, setDescription] = useState('');

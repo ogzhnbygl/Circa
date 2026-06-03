@@ -73,10 +73,11 @@ export const generatePetition = async (month, year, shifts) => {
     const tableColumn = ["Personel Adı Soyad", "Tarih", "Giriş Saati", "Çıkış Saati", "Toplam Süre"];
     const tableRows = [];
 
-    const sortedShifts = [...shifts].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sortedShifts = [...shifts].sort((a, b) => a.date.localeCompare(b.date));
 
     sortedShifts.forEach(shift => {
-        const dateStr = new Date(shift.date).toLocaleDateString('tr-TR');
+        const parts = shift.date.split('-');
+        const dateStr = parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : shift.date;
         const startDt = new Date(`1970-01-01T${shift.startTime}:00`);
         const endDt = new Date(`1970-01-01T${shift.endTime}:00`);
         let hours = (endDt - startDt) / (1000 * 60 * 60);
@@ -137,8 +138,9 @@ export const generatePetition = async (month, year, shifts) => {
         let hours = (endDt - startDt) / (1000 * 60 * 60);
         if (hours < 0) hours += 24;
 
-        const shiftDate = new Date(shift.date);
-        const dayOfWeek = shiftDate.getDay(); // 0 is Sunday, 6 is Saturday
+        const [yr, mo, dy] = shift.date.split('-').map(Number);
+        const shiftDate = new Date(Date.UTC(yr, mo - 1, dy));
+        const dayOfWeek = shiftDate.getUTCDay(); // 0 is Sunday, 6 is Saturday
 
         let multiplier = 1.7; // Varsayılan: Hafta içi ve Cumartesi
 
@@ -189,25 +191,25 @@ export const generatePetition = async (month, year, shifts) => {
     });
 
     // --- Closing ---
-    const closingY = currentY + 10;
-    if (closingY > 270) {
-        doc.addPage();
-        currentY = 20;
-    } else {
-        currentY = closingY;
-    }
-
     const closingText = "Söz konusu fazla mesai saatlerinin, personelin izin hak edişlerine eklenmesi ve dosyasına işlenmesi hususunu bilgilerinize arz ederim.";
     const splitClosing = doc.splitTextToSize(closingText, 180);
-    doc.text(splitClosing, 14, currentY);
+    const closingHeight = doc.getTextDimensions(splitClosing).h;
+
+    let closingY = currentY + 10;
+    // Check if both closing text and signature block fit on the current page
+    if (closingY + closingHeight + 35 > 280) {
+        doc.addPage();
+        closingY = 20;
+    }
+
+    doc.text(splitClosing, 14, closingY);
 
     // --- Footer ---
-    const footerY = currentY + 20;
+    const footerY = closingY + closingHeight + 15;
     const today = new Date().toLocaleDateString('tr-TR');
 
     doc.setFont('Tinos', 'bold');
     doc.text(`Tarih: ${today}`, 190, footerY, { align: 'right' });
-
     doc.text('Onaylayan Yetkili', 190, footerY + 22, { align: 'right' });
 
     doc.save(`${year}-${monthName}-Mesai-Dilekcesi.pdf`);

@@ -3,7 +3,10 @@ import { Calendar, Clock } from 'lucide-react';
 
 export default function AddShiftForm({ onSubmit }) {
     const [formData, setFormData] = useState({
-        date: new Date().toISOString().split('T')[0],
+        date: (() => {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        })(),
         shiftType: 'weekday', // weekday, weekend, holiday
         startTime: '09:00',
         endTime: '17:00',

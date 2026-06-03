@@ -58,14 +58,21 @@ export const generateLeavePetition = async (user, leaveRequest, totalBalance) =>
     let startDateStr = '';
     let endDateStr = '';
 
+    const formatDateStr = (dateStr) => {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    };
+
     if (leaveRequest.unit === 'daily' && leaveRequest.dates && leaveRequest.dates.length > 0) {
         // Sort dates just in case
         const sortedDates = [...leaveRequest.dates].sort();
-        startDateStr = new Date(sortedDates[0]).toLocaleDateString('tr-TR');
-        endDateStr = new Date(sortedDates[sortedDates.length - 1]).toLocaleDateString('tr-TR');
+        startDateStr = formatDateStr(sortedDates[0]);
+        endDateStr = formatDateStr(sortedDates[sortedDates.length - 1]);
     } else if (leaveRequest.unit === 'hourly' && leaveRequest.singleDate) {
-        startDateStr = new Date(leaveRequest.singleDate).toLocaleDateString('tr-TR') + ' ' + leaveRequest.startTime;
-        endDateStr = new Date(leaveRequest.singleDate).toLocaleDateString('tr-TR') + ' ' + leaveRequest.endTime;
+        startDateStr = formatDateStr(leaveRequest.singleDate) + ' ' + leaveRequest.startTime;
+        endDateStr = formatDateStr(leaveRequest.singleDate) + ' ' + leaveRequest.endTime;
     } else {
         // Fallback
         startDateStr = '...';
@@ -90,13 +97,16 @@ export const generateLeavePetition = async (user, leaveRequest, totalBalance) =>
     currentY += doc.getTextDimensions(splitBody2).h + 10;
 
     doc.text(bodyText3, 14, currentY);
-    currentY += 20;
+    currentY += 10;
 
     doc.text(bodyText4, 14, currentY);
 
     // --- Footer / Signature ---
-    // --- Footer / Signature ---
-    const footerY = currentY + 30;
+    let footerY = currentY + 20;
+    if (footerY + 20 > 280) {
+        doc.addPage();
+        footerY = 25;
+    }
     const today = new Date().toLocaleDateString('tr-TR');
 
     doc.text(`Tarih: ${today}`, 190, footerY, { align: 'right' });

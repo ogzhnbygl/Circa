@@ -48,8 +48,9 @@ export default async function handler(req, res) {
 
             if (hours < 0) hours += 24; // Handle overnight shifts if necessary (simple case)
 
-            const shiftDate = new Date(shift.date);
-            const dayOfWeek = shiftDate.getDay(); // 0 is Sunday, 6 is Saturday
+            const [yr, mo, dy] = shift.date.split('-').map(Number);
+            const shiftDate = new Date(Date.UTC(yr, mo - 1, dy));
+            const dayOfWeek = shiftDate.getUTCDay(); // 0 is Sunday, 6 is Saturday
 
             let multiplier = 1.7; // Varsayılan: Hafta içi ve Cumartesi
 

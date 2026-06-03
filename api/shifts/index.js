@@ -1,4 +1,13 @@
 import { verifyUser } from '../lib/auth.js';
+import { z } from 'zod';
+
+const shiftPostSchema = z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Tarih YYYY-MM-DD formatında olmalıdır.'),
+    shiftType: z.enum(['weekday', 'weekend', 'holiday']),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Başlangıç saati HH:MM formatında olmalıdır.'),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Bitiş saati HH:MM formatında olmalıdır.'),
+    description: z.string().optional().default('')
+});
 
 export default async function handler(req, res) {
     let user;
@@ -20,17 +29,6 @@ export default async function handler(req, res) {
             // Date filtering
             const { month, year } = req.query;
             if (month && year) {
-                const startDate = new Date(year, month - 1, 1);
-                const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-
-                // Add date range to query (assuming 'date' field stores the shift date/time as string or Date)
-                // Note: If 'date' is stored as a string (YYYY-MM-DD...), we might need regex or convert to Date object in DB
-                // Based on previous code, 'date' seems to be the main field. 
-                // However, MongoDB usually stores dates as ISODate. 
-                // Let's assume standard string comparison works if strict ISO or let's try to query by range.
-                // Re-checking the POST handler: "date" comes from body. It's likely a string from the frontend.
-                // If it's saved as string, we should match by string prefix like "YYYY-MM"
-
                 // Construct regex for string date "YYYY-MM"
                 const monthStr = month.toString().padStart(2, '0');
                 const datePattern = `^${year}-${monthStr}`;
@@ -63,12 +61,11 @@ export default async function handler(req, res) {
     // POST: Create new shift (Kaydet)
     if (req.method === 'POST') {
         try {
-            const { date, shiftType, startTime, endTime, description } = req.body;
-
-            // Simple validation
-            if (!date || !shiftType || !startTime || !endTime) {
-                return res.status(400).json({ error: 'Lütfen tüm zorunlu alanları doldurunuz.' });
+            const validation = shiftPostSchema.safeParse(req.body);
+            if (!validation.success) {
+                return res.status(400).json({ error: validation.error.errors[0].message });
             }
+            const { date, shiftType, startTime, endTime, description } = validation.data;
 
             const newShift = {
                 name: user.name,
