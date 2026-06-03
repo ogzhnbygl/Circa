@@ -60,7 +60,8 @@ export const generateLeavePetition = async (user, leaveRequest, totalBalance) =>
 
     const formatDateStr = (dateStr) => {
         if (!dateStr) return '';
-        const parts = dateStr.split('-');
+        const cleanDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+        const parts = cleanDate.split('-');
         if (parts.length !== 3) return dateStr;
         return `${parts[2]}.${parts[1]}.${parts[0]}`;
     };
@@ -109,8 +110,17 @@ export const generateLeavePetition = async (user, leaveRequest, totalBalance) =>
     }
     const today = new Date().toLocaleDateString('tr-TR');
 
+    const formatName = (u) => {
+        if (!u) return '';
+        if (u.name && u.name !== u.email.split('@')[0]) return u.name;
+        const prefix = u.email.split('@')[0];
+        return prefix.split('.')
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    };
+
     doc.text(`Tarih: ${today}`, 190, footerY, { align: 'right' });
-    doc.text(`Ad Soyad: ${user.name || user.email}`, 190, footerY + 8, { align: 'right' });
+    doc.text(`Ad Soyad: ${formatName(user)}`, 190, footerY + 8, { align: 'right' });
     doc.text('İmza: ____________________', 190, footerY + 16, { align: 'right' });
 
     doc.save(`Izin-Dilekcesi-${startDateStr}.pdf`);

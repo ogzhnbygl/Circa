@@ -75,8 +75,17 @@ export const generatePetition = async (month, year, shifts) => {
 
     const sortedShifts = [...shifts].sort((a, b) => a.date.localeCompare(b.date));
 
+    const formatNameStr = (name, email) => {
+        if (name && name !== email.split('@')[0]) return name;
+        const prefix = email.split('@')[0];
+        return prefix.split('.')
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    };
+
     sortedShifts.forEach(shift => {
-        const parts = shift.date.split('-');
+        const cleanDate = shift.date.includes('T') ? shift.date.split('T')[0] : shift.date;
+        const parts = cleanDate.split('-');
         const dateStr = parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : shift.date;
         const startDt = new Date(`1970-01-01T${shift.startTime}:00`);
         const endDt = new Date(`1970-01-01T${shift.endTime}:00`);
@@ -88,7 +97,7 @@ export const generatePetition = async (month, year, shifts) => {
         const durationText = m > 0 ? `${h} Saat ${m} Dk` : `${h} Saat`;
 
         const rowData = [
-            shift.name || shift.email,
+            formatNameStr(shift.name, shift.email),
             dateStr,
             shift.startTime,
             shift.endTime,
