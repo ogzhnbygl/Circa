@@ -26,12 +26,16 @@ Circa, sadelik üzerine kurulmuştur. Karmaşık HR yönetim sistemlerinin aksin
 ### Faz 1: Temel Fonksiyonlar (Tamamlandı ✅)
 - [x] Vardiya giriş ve çıkış kayıtları.
 - [x] Geçmiş kayıtların listelenmesi.
-- [x] Apex auth entegrasyonu.
+- [x] Apex auth entegrasyonu (`verifyUser` ve paylaşılan oturum).
 
-### Faz 2: Raporlama ve Analiz
-- [ ] **Grafiksel Raporlar:** Haftalık/Aylık çalışma sürelerinin görselleştirilmesi.
-- [ ] **PDF Export:** Resmi bordro veya raporlama için çıktı alabilme.
+### Faz 2: Raporlama, Doğrulama ve Yönlendirme (Tamamlandı ✅)
+- [x] **Grafiksel Raporlar:** Haftalık ve aylık çalışma sürelerinin `/reports` sayfasında görselleştirilmesi.
+- [x] **PDF Export:** Resmi bordro veya izin raporu için koordinat ve tablo taşma düzeltmeli PDF çıktı sistemi.
+- [x] **Timezone Güvenliği:** Takvimde gün kaymalarını önlemek için string tabanlı tarih seçimi ve sunucuda UTC çarpan analizi.
+- [x] **Yönlendirme:** `react-router-dom` ile `/`, `/leaves`, `/reports` rotalarının kurgulanması.
+- [x] **Zod Doğrulamaları:** Mesai ve izin kayıtlarının sunucu tarafında veri şeması doğrulaması.
 
-### Faz 3: Akıllı Özellikler
+### Faz 3: Akıllı Özellikler (Planlanıyor)
 - [ ] **Otomatik Hatırlatıcılar:** Mesai bitiminde çıkış yapmayı unutan kullanıcılara bildirim.
 - [ ] **Vardiya Planlama:** Gelecek haftaların vardiya planını oluşturma ve paylaşma.
+- [ ] **Bordro Entegrasyonu:** Hesaplanan katsayılı mesai sürelerinin muhasebe yazılımlarına otomatik aktarılması.
