@@ -112,15 +112,20 @@ export const generateLeavePetition = async (user, leaveRequest, totalBalance) =>
 
     const formatName = (u) => {
         if (!u) return '';
-        if (u.name && u.name !== u.email.split('@')[0]) return u.name;
-        const prefix = u.email.split('@')[0];
-        return prefix.split('.')
+        const emailPrefix = u.email ? u.email.split('@')[0] : '';
+        if (u.name && u.name !== emailPrefix) return u.name;
+        if (!emailPrefix) return u.name || '';
+        return emailPrefix.split('.')
             .map(part => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ');
     };
 
+    const applicant = (leaveRequest?.email || leaveRequest?.name)
+        ? { email: leaveRequest.email || user?.email, name: leaveRequest.name || user?.name }
+        : user;
+
     doc.text(`Tarih: ${today}`, 190, footerY, { align: 'right' });
-    doc.text(`Ad Soyad: ${formatName(user)}`, 190, footerY + 8, { align: 'right' });
+    doc.text(`Ad Soyad: ${formatName(applicant)}`, 190, footerY + 8, { align: 'right' });
     doc.text('İmza: ____________________', 190, footerY + 16, { align: 'right' });
 
     doc.save(`Izin-Dilekcesi-${startDateStr}.pdf`);

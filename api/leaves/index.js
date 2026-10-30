@@ -1,5 +1,18 @@
 import { verifyUser } from '../lib/auth.js';
 import { ObjectId } from 'mongodb';
+import { z } from 'zod';
+
+const isoDateRegex = /^\d{4}-\d{2}-\d{2}/;
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+const leavePostSchema = z.object({
+    unit: z.enum(['daily', 'hourly']),
+    dates: z.array(z.string().regex(isoDateRegex, 'Geçersiz tarih formatı.')).optional().default([]),
+    singleDate: z.string().regex(isoDateRegex, 'Geçersiz tarih formatı.').nullable().optional(),
+    startTime: z.string().regex(timeRegex, 'Başlangıç saati HH:MM formatında olmalıdır.').nullable().optional(),
+    endTime: z.string().regex(timeRegex, 'Bitiş saati HH:MM formatında olmalıdır.').nullable().optional(),
+    description: z.string().optional().default('')
+});
 
 export default async function handler(req, res) {
     let user;
@@ -17,7 +30,7 @@ export default async function handler(req, res) {
         try {
             // Admin sees all, user sees own
             const query = user.role === 'admin' ? {} : { email: user.email };
-            const limit = parseInt(req.query.limit) || 10;
+            const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 200);
 
             const timeOffs = await collection
                 .find(query)
@@ -32,33 +45,66 @@ export default async function handler(req, res) {
         }
     }
 
-    // POST: Create new time-off request
+    // POST: Create new time-off request (server-side totalHours calculation)
     if (req.method === 'POST') {
         try {
-            const { unit, dates, singleDate, startTime, endTime, totalHours, description } = req.body;
-
-            // Simple validation
-            if (!unit || !totalHours) {
-                return res.status(400).json({ error: 'Eksik bilgi gönderildi.' });
+            const validation = leavePostSchema.safeParse(req.body);
+            if (!validation.success) {
+                return res.status(400).json({
+                    error: validation.error.issues?.[0]?.message || 'Eksik veya geçersiz bilgi gönderildi.'
+                });
             }
 
-            if (unit === 'daily' && (!dates || dates.length === 0)) {
-                return res.status(400).json({ error: 'Lütfen en az bir gün seçiniz.' });
+            const { unit, dates, singleDate, startTime, endTime, description } = validation.data;
+
+            let computedTotalHours = 0;
+            let normalizedDates = [];
+            let normalizedSingleDate = null;
+
+            if (unit === 'daily') {
+                const uniqueDateKeys = [...new Set((dates || []).map(d => d.slice(0, 10)))];
+                if (uniqueDateKeys.length === 0) {
+                    return res.status(400).json({ error: 'Lütfen en az bir gün seçiniz.' });
+                }
+                normalizedDates = uniqueDateKeys.map(d => new Date(d));
+                if (normalizedDates.some(d => Number.isNaN(d.getTime()))) {
+                    return res.status(400).json({ error: 'Seçilen tarihlerden biri geçersiz.' });
+                }
+                computedTotalHours = uniqueDateKeys.length * 8;
+            } else {
+                if (!singleDate || !startTime || !endTime) {
+                    return res.status(400).json({ error: 'Saatlik izin için tarih ve saat aralığı zorunludur.' });
+                }
+                normalizedSingleDate = new Date(singleDate.slice(0, 10));
+                if (Number.isNaN(normalizedSingleDate.getTime())) {
+                    return res.status(400).json({ error: 'Geçersiz izin tarihi.' });
+                }
+
+                const [sh, sm] = startTime.split(':').map(Number);
+                const [eh, em] = endTime.split(':').map(Number);
+                const startMinutes = sh * 60 + sm;
+                const endMinutes = eh * 60 + em;
+
+                if (endMinutes <= startMinutes) {
+                    return res.status(400).json({ error: 'Bitiş saati başlangıç saatinden sonra olmalıdır.' });
+                }
+
+                computedTotalHours = parseFloat(((endMinutes - startMinutes) / 60).toFixed(2));
             }
 
-            if (unit === 'hourly' && (!singleDate || !startTime || !endTime)) {
-                return res.status(400).json({ error: 'Saatlik izin için tarih ve saat aralığı zorunludur.' });
+            if (computedTotalHours <= 0) {
+                return res.status(400).json({ error: 'İzin süresi sıfırdan büyük olmalıdır.' });
             }
 
             const newTimeOff = {
                 name: user.name,
                 email: user.email,
                 unit,
-                dates: unit === 'daily' ? dates.map(d => new Date(d)) : [],
-                singleDate: unit === 'hourly' ? new Date(singleDate) : null,
-                startTime,
-                endTime,
-                totalHours: parseFloat(totalHours),
+                dates: normalizedDates,
+                singleDate: normalizedSingleDate,
+                startTime: unit === 'hourly' ? startTime : null,
+                endTime: unit === 'hourly' ? endTime : null,
+                totalHours: computedTotalHours,
                 description,
                 status: 'pending', // pending, approved, rejected
                 createdAt: new Date()

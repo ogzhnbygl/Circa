@@ -5,10 +5,10 @@ import AddShiftForm from './components/AddShiftForm';
 import RecentShifts from './components/RecentShifts';
 import Reports from './pages/Reports';
 import LeaveTracking from './pages/LeaveTracking';
-import { Clock, LogOut } from 'lucide-react';
+import { Clock, LogOut, LayoutGrid } from 'lucide-react';
 
 function Navigation() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const location = useLocation();
 
     return (
@@ -66,11 +66,19 @@ function Navigation() {
                         </div>
                         <a
                             href={getApexUrl()}
-                            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
-                            title="Apex'e Dön"
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Apex Ana Ekrana Dön"
+                        >
+                            <LayoutGrid className="w-5 h-5" />
+                        </a>
+                        <button
+                            type="button"
+                            onClick={logout}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Çıkış Yap"
                         >
                             <LogOut className="w-5 h-5" />
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>

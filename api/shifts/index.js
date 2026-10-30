@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         try {
             const validation = shiftPostSchema.safeParse(req.body);
             if (!validation.success) {
-                return res.status(400).json({ error: validation.error.errors[0].message });
+                return res.status(400).json({ error: validation.error.issues?.[0]?.message || 'Geçersiz vardiya verisi.' });
             }
             const { date, shiftType, startTime, endTime, description } = validation.data;
 

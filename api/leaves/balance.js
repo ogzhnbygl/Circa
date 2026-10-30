@@ -16,12 +16,13 @@ export default async function handler(req, res) {
     const { db } = user;
     const balancesCollection = db.collection('balances');
 
+    // Admins can query a specific staff member's balance (e.g. when generating leave petition PDFs)
+    const requestedEmail = typeof req.query?.email === 'string' ? req.query.email.trim() : '';
+    const targetEmail = (user.role === 'admin' && requestedEmail) ? requestedEmail : user.email;
+
     try {
-        // Aggregate all balance records for this user
-        // Positive records: Monthly shift accruals
-        // Negative records: Leave usage
         const pipeline = [
-            { $match: { email: user.email } },
+            { $match: { email: targetEmail } },
             { $group: { _id: null, totalBalance: { $sum: '$totalHours' } } }
         ];
 
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
         const totalBalance = result.length > 0 ? result[0].totalBalance : 0;
 
         return res.status(200).json({
+            email: targetEmail,
             totalBalance: parseFloat(totalBalance.toFixed(2)),
             currency: 'hours'
         });

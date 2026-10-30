@@ -6,7 +6,23 @@ export default function RecentLeaves({ leaves, onViewAll, isAdmin, onApprove, on
 
     const handleDownloadPetition = async (leave) => {
         try {
-            await generateLeavePetition(user, leave, userBalance);
+            const isOtherUser = Boolean(leave.email && user?.email && leave.email !== user.email);
+            const petitionOwner = isOtherUser
+                ? { email: leave.email, name: leave.name || leave.email.split('@')[0] }
+                : (user || { email: leave.email, name: leave.name });
+
+            let ownerBalance = userBalance;
+            if (isOtherUser && isAdmin) {
+                const res = await fetch(`/api/leaves/balance?email=${encodeURIComponent(leave.email)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    ownerBalance = data.totalBalance ?? 0;
+                } else {
+                    ownerBalance = 0;
+                }
+            }
+
+            await generateLeavePetition(petitionOwner, leave, ownerBalance);
         } catch (error) {
             console.error('Petition generation error:', error);
             alert('Dilekçe oluşturulurken bir hata oluştu');

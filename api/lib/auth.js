@@ -1,10 +1,10 @@
-import { verifyAuth } from '../../lib/auth.js';
+import { verifyAuthWithStatus } from '../../lib/auth.js';
 import clientPromise, { getDbName } from '../../lib/mongodb.js';
 
 export async function verifyUser(req) {
-    const user = await verifyAuth(req, 'circa');
+    const { user, status, error } = await verifyAuthWithStatus(req, 'circa');
     if (!user) {
-        throw { status: 401, message: 'Kimlik doğrulama başarısız' };
+        throw { status: status || 401, message: error || 'Kimlik doğrulama başarısız' };
     }
 
     const client = await clientPromise;
