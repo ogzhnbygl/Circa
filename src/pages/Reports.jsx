@@ -131,8 +131,89 @@ export default function Reports() {
         setSelectedDate(newDate);
     };
 
-    const totalHours = shifts.length * 8; // Placeholder estimate
+    const calcShiftHours = (shift) => {
+        if (!shift?.startTime || !shift?.endTime) return 0;
+        const [startH, startM] = shift.startTime.split(':').map(Number);
+        const [endH, endM] = shift.endTime.split(':').map(Number);
+        if (Number.isNaN(startH) || Number.isNaN(startM) || Number.isNaN(endH) || Number.isNaN(endM)) {
+            return 0;
+        }
+        let hours = (endH * 60 + endM - (startH * 60 + startM)) / 60;
+        if (hours < 0) hours += 24;
+        return hours;
+    };
+
+    const calcWeightedHours = (shift, rawHours) => {
+        if (!shift?.date) return rawHours * 1.7;
+        const [yr, mo, dy] = shift.date.split('-').map(Number);
+        const dayOfWeek = new Date(Date.UTC(yr, mo - 1, dy)).getUTCDay();
+        const multiplier = shift.shiftType === 'holiday' || dayOfWeek === 0 ? 3.0 : 1.7;
+        return rawHours * multiplier;
+    };
+
+    const totalHours = Number(
+        shifts.reduce((sum, shift) => sum + calcShiftHours(shift), 0).toFixed(2)
+    );
     const uniqueUsers = new Set(shifts.map(s => s.email)).size;
+
+    const handleExportExcel = () => {
+        if (shifts.length === 0) return;
+
+        const escapeCsvCell = (val) => {
+            const str = String(val ?? '');
+            const safeStr = /^[=+\-@]/.test(str) ? `'${str}` : str;
+            return `"${safeStr.replace(/"/g, '""')}"`;
+        };
+
+        const headers = [
+            'Personel',
+            'E-posta',
+            'Tarih',
+            'Vardiya Tipi',
+            'Başlangıç',
+            'Bitiş',
+            'Fiili Süre (Saat)',
+            'İzin Karşılığı (Saat)',
+            'Açıklama'
+        ];
+
+        const rows = shifts.map((shift) => {
+            const rawHours = calcShiftHours(shift);
+            const weightedHours = calcWeightedHours(shift, rawHours);
+            const typeLabel =
+                shift.shiftType === 'weekend'
+                    ? 'Hafta Sonu'
+                    : shift.shiftType === 'holiday'
+                    ? 'Resmi Tatil'
+                    : 'Hafta İçi';
+
+            return [
+                shift.name || 'İsimsiz',
+                shift.email || '',
+                shift.date || '',
+                typeLabel,
+                shift.startTime || '',
+                shift.endTime || '',
+                Number(rawHours.toFixed(2)),
+                Number(weightedHours.toFixed(2)),
+                shift.description || ''
+            ].map(escapeCsvCell).join(',');
+        });
+
+        const csvContent = '\uFEFF' + [headers.map(escapeCsvCell).join(','), ...rows].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const monthStr = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const yearStr = selectedDate.getFullYear();
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `circa_mesai_raporu_${yearStr}_${monthStr}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="max-w-5xl mx-auto">
@@ -221,8 +302,14 @@ export default function Reports() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50 text-sm">
-                                {shifts.map((shift, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-50/40 transition-colors group">
+                                {shifts.map((shift, idx) => {
+                                    const safeDateStr = typeof shift.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(shift.date)
+                                        ? `${shift.date}T00:00:00`
+                                        : shift.date;
+                                    const shiftDateObj = new Date(safeDateStr);
+                                    const shiftDuration = Number(calcShiftHours(shift).toFixed(2));
+                                    return (
+                                    <tr key={shift._id || idx} className="hover:bg-slate-50/40 transition-colors group">
                                         <td className="px-6 py-3.5">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100/50">
@@ -237,10 +324,10 @@ export default function Reports() {
                                         <td className="px-6 py-3.5">
                                             <div className="flex flex-col">
                                                 <span className="text-slate-700 font-medium">
-                                                    {new Date(shift.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}
+                                                    {shiftDateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}
                                                 </span>
                                                 <span className="text-xs text-slate-400">
-                                                    {new Date(shift.date).toLocaleDateString('tr-TR', { weekday: 'long' })}
+                                                    {shiftDateObj.toLocaleDateString('tr-TR', { weekday: 'long' })}
                                                 </span>
                                             </div>
                                         </td>
@@ -250,8 +337,8 @@ export default function Reports() {
                                                     {shift.description}
                                                 </span>
                                                 <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                                                    <Clock className="w-3 h-3" />
-                                                    <span>{shift.startTime} - {shift.endTime}</span>
+                                                    <Clock className="w-3 h-3" aria-hidden="true" />
+                                                    <span>{shift.startTime} - {shift.endTime} ({shiftDuration}s)</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -267,19 +354,25 @@ export default function Reports() {
                                             </span>
                                         </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}
                 </div>
 
                 {/* Footer Section */}
-                <div className="bg-slate-50 border-t border-slate-100 px-6 py-3 flex justify-between items-center text-xs text-slate-500">
+                <div className="bg-slate-50 border-t border-slate-100 px-6 py-3 flex flex-wrap justify-between items-center gap-3 text-xs text-slate-500">
                     <span>Toplam {shifts.length} kayıt listeleniyor</span>
-                    <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-2 hover:text-slate-700 transition-colors disabled:opacity-50" disabled={shifts.length === 0}>
-                            <Download className="w-3.5 h-3.5" />
-                            Excel İndir
+                    <div className="flex flex-wrap items-center gap-4">
+                        <button
+                            type="button"
+                            onClick={handleExportExcel}
+                            className="flex items-center gap-2 hover:text-slate-700 transition-colors disabled:opacity-50"
+                            disabled={shifts.length === 0}
+                        >
+                            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+                            Excel İndir (CSV)
                         </button>
                         {user?.role === 'admin' && (
                             <button

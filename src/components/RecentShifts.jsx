@@ -1,23 +1,36 @@
-import React from 'react';
-import { Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, Trash2 } from 'lucide-react';
 
-export default function RecentShifts({ shifts = [], onViewAll }) {
+export default function RecentShifts({ shifts = [], currentUser, onDeleteShift, onViewAll }) {
+    const [deletingId, setDeletingId] = useState(null);
 
-    // Format date helper: "05 OCT" styling
+    // Format date helper without UTC midnight timezone shift
     const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        // Turkish month abbreviation manually map if needed, or use toLocaleDateString
+        const safeStr = typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+            ? `${dateString}T00:00:00`
+            : dateString;
+        const date = new Date(safeStr);
         const day = date.getDate().toString().padStart(2, '0');
         const month = date.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase();
         const year = date.getFullYear();
         return { day, month, year };
     };
 
+    const handleDeleteClick = async (shiftId) => {
+        if (!onDeleteShift || !shiftId) return;
+        setDeletingId(shiftId);
+        try {
+            await onDeleteShift(shiftId);
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 h-full">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-slate-800">Son Hareketler</h2>
-                <button onClick={onViewAll} className="text-blue-600 text-sm font-semibold hover:text-blue-700">Tümünü Gör</button>
+                <button type="button" onClick={onViewAll} className="text-blue-600 text-sm font-semibold hover:text-blue-700">Tümünü Gör</button>
             </div>
 
             <div className="space-y-4">
@@ -50,8 +63,14 @@ export default function RecentShifts({ shifts = [], onViewAll }) {
                             tagText = 'Resmi Tatil';
                         }
 
+                        const canDelete = Boolean(
+                            onDeleteShift &&
+                            shift._id &&
+                            (currentUser?.role === 'admin' || (currentUser?.email && shift.email === currentUser.email))
+                        );
+
                         return (
-                            <div key={index} className="flex items-center gap-4 p-4 rounded-xl border border-slate-50 hover:border-slate-100 hover:bg-slate-50/50 transition-colors group">
+                            <div key={shift._id || index} className="flex items-center gap-4 p-4 rounded-xl border border-slate-50 hover:border-slate-100 hover:bg-slate-50/50 transition-colors group">
                                 {/* Date Box */}
                                 <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg flex-shrink-0 ${dateBoxClass}`}>
                                     <span className="text-[10px] font-bold opacity-80 leading-none">{month} '{String(year).slice(-2)}</span>
@@ -65,14 +84,28 @@ export default function RecentShifts({ shifts = [], onViewAll }) {
                                     )}
                                     <h3 className="font-bold text-slate-800 truncate">{shift.description || 'Mesai'}</h3>
                                     <div className="flex items-center gap-1.5 mt-1 text-slate-500 text-sm font-medium">
-                                        <Clock className="w-3.5 h-3.5 opacity-70" />
+                                        <Clock className="w-3.5 h-3.5 opacity-70" aria-hidden="true" />
                                         <span>{shift.startTime} - {shift.endTime}</span>
                                     </div>
                                 </div>
 
-                                {/* Tag */}
-                                <div className={`px-3 py-1 rounded-full text-xs font-semibold ${tagClass}`}>
-                                    {tagText}
+                                {/* Tag & Delete */}
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <div className={`px-3 py-1 rounded-full text-xs font-semibold ${tagClass}`}>
+                                        {tagText}
+                                    </div>
+                                    {canDelete && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteClick(shift._id)}
+                                            disabled={deletingId === shift._id}
+                                            aria-label="Mesai kaydını sil"
+                                            title="Mesai kaydını sil"
+                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50"
+                                        >
+                                            <Trash2 className="w-4 h-4" aria-hidden="true" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         );

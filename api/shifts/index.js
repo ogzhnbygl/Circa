@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { verifyUser } from '../lib/auth.js';
 import { z } from 'zod';
 
@@ -87,6 +88,49 @@ export default async function handler(req, res) {
         }
     }
 
-    res.setHeader('Allow', ['GET', 'POST']);
+    // DELETE: Remove a shift by id (only owner or admin; blocked for regular users if month already processed)
+    if (req.method === 'DELETE') {
+        try {
+            const { id } = req.query;
+            if (!id || typeof id !== 'string' || !ObjectId.isValid(id)) {
+                return res.status(400).json({ error: 'Geçerli bir mesai kayıt ID gereklidir.' });
+            }
+
+            const existingShift = await collection.findOne({ _id: new ObjectId(id) });
+            if (!existingShift) {
+                return res.status(404).json({ error: 'Mesai kaydı bulunamadı.' });
+            }
+
+            const isOwner = existingShift.email === user.email;
+            const isAdmin = user.role === 'admin';
+            if (!isOwner && !isAdmin) {
+                return res.status(403).json({ error: 'Yalnızca kendi mesai kayıtlarınızı silebilirsiniz.' });
+            }
+
+            const period = typeof existingShift.date === 'string' ? existingShift.date.slice(0, 7) : '';
+            let periodProcessed = false;
+            if (period) {
+                const processedCount = await db.collection('balances').countDocuments({ period });
+                periodProcessed = processedCount > 0;
+                if (periodProcessed && !isAdmin) {
+                    return res.status(400).json({
+                        error: 'Bu aya ait mesailer bakiyeye işlendiği için kayıt silinemez. Lütfen yöneticinizle iletişime geçin.'
+                    });
+                }
+            }
+
+            await collection.deleteOne({ _id: new ObjectId(id) });
+
+            return res.status(200).json({
+                success: true,
+                periodProcessed
+            });
+        } catch (error) {
+            console.error('Delete Shift Error:', error);
+            return res.status(500).json({ error: 'Kayıt silinirken bir hata oluştu.' });
+        }
+    }
+
+    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
 }
