@@ -1,5 +1,5 @@
 import { verifyAuth } from '../../lib/auth.js';
-import clientPromise from '../../lib/mongodb.js';
+import clientPromise, { getDbName } from '../../lib/mongodb.js';
 
 export async function verifyUser(req) {
     const user = await verifyAuth(req, 'circa');
@@ -8,7 +8,7 @@ export async function verifyUser(req) {
     }
 
     const client = await clientPromise;
-    const circaDb = client.db('Circa_db');
+    const circaDb = client.db(getDbName('Circa_db'));
 
     return {
         ...user,

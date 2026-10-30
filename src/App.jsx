@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { useAuth, getApexUrl, isPreviewHost } from './context/AuthContext';
 import AddShiftForm from './components/AddShiftForm';
 import RecentShifts from './components/RecentShifts';
 import Reports from './pages/Reports';
@@ -18,8 +18,13 @@ function Navigation() {
                     <div className="bg-blue-600 p-2 rounded-lg shadow-sm shadow-blue-200">
                         <Clock className="w-6 h-6 text-white" strokeWidth={2.5} />
                     </div>
-                    <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+                    <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
                         Circa - Mesai Takip
+                        {isPreviewHost() && (
+                            <span className="px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 rounded-full">
+                                Test Ortamı
+                            </span>
+                        )}
                     </h1>
                 </div>
 
@@ -60,7 +65,7 @@ function Navigation() {
                             {user?.email}
                         </div>
                         <a
-                            href="https://wildtype.app"
+                            href={getApexUrl()}
                             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
                             title="Apex'e Dön"
                         >
