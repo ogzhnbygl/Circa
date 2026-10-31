@@ -68,7 +68,7 @@ Kullanıcıların mesai ve vardiya kayıtlarını tutar.
 
 ### Ön Yüz Rotaları (`react-router-dom`)
 - `/` - Dashboard & Mesai Takibi (Ana sayfa)
-- `/leaves` - İzin Talepleri & İzin Dilekçesi Oluşturma
+- `/permissions` - İzin Talepleri & İzin Dilekçesi Oluşturma
 - `/reports` - Mesai ve İzin Raporları / Grafik Analizler
 
 ### Sunucu API Endpoint'leri (Zod Validasyonlu)

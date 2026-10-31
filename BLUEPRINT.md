@@ -32,7 +32,7 @@ Circa, sadelik üzerine kurulmuştur. Karmaşık HR yönetim sistemlerinin aksin
 - [x] **Grafiksel Raporlar:** Haftalık ve aylık çalışma sürelerinin `/reports` sayfasında görselleştirilmesi.
 - [x] **PDF Export:** Resmi bordro veya izin raporu için koordinat ve tablo taşma düzeltmeli PDF çıktı sistemi.
 - [x] **Timezone Güvenliği:** Takvimde gün kaymalarını önlemek için string tabanlı tarih seçimi ve sunucuda UTC çarpan analizi.
-- [x] **Yönlendirme:** `react-router-dom` ile `/`, `/leaves`, `/reports` rotalarının kurgulanması.
+- [x] **Yönlendirme:** `react-router-dom` ile `/`, `/permissions`, `/reports` rotalarının kurgulanması.
 - [x] **Zod Doğrulamaları:** Mesai ve izin kayıtlarının sunucu tarafında veri şeması doğrulaması.
 
 ### Faz 3: Akıllı Özellikler (Planlanıyor)

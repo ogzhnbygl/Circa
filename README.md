@@ -15,7 +15,7 @@ Circa, Apex ekosistemine entegre edilmiş, modern ve kullanıcı dostu bir mesai
 - **Güvenli Oturum ve Doğrulama (Faz 1 & Faz 2):**
     - Apex merkezi kimlik doğrulamasına tam entegre HttpOnly/secure JWT çerez kontrolü.
     - Tüm backend API isteklerinin Zod şemaları ile doğrulanması.
-    - `react-router-dom` ile URL tabanlı yönlendirme (`/`, `/leaves`, `/reports`).
+    - `react-router-dom` ile URL tabanlı yönlendirme (`/`, `/permissions`, `/reports`).
 
 ## 🛠️ Teknolojiler
 
